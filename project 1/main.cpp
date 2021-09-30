@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv2\opencv.hpp>
+#include <cmath>
 
 cv::Mat problem_a_rotate_forward(cv::Mat img, double angle){
 	cv::Mat output;
