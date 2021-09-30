@@ -4,6 +4,7 @@
 
 cv::Mat problem_a_rotate_forward(cv::Mat img, double angle){
 	cv::Mat output;
+
 	//////////////////////////////////////////////////////////////////////////////
 	//                         START OF YOUR CODE                               //
 	//////////////////////////////////////////////////////////////////////////////
@@ -47,6 +48,7 @@ cv::Mat problem_a_rotate_forward(cv::Mat img, double angle){
 	//////////////////////////////////////////////////////////////////////////////
 	//                          END OF YOUR CODE                                //
 	//////////////////////////////////////////////////////////////////////////////
+
 	cv::imshow("a_output", output); cv::waitKey(0);
 	return output;
 }
@@ -103,7 +105,6 @@ cv::Mat problem_b_rotate_backward(cv::Mat img, double angle){
 	//////////////////////////////////////////////////////////////////////////////
 
 	cv::imshow("b_output", output); cv::waitKey(0);
-
 	return output;
 }
 
@@ -114,12 +115,77 @@ cv::Mat problem_c_rotate_backward_interarea(cv::Mat img, double angle){
 	//                         START OF YOUR CODE                               //
 	//////////////////////////////////////////////////////////////////////////////
 
+	const double PI = 3.1415926;
+	double sine = sin(angle * PI / 180);
+	double cosine = cos(angle * PI / 180);
+	float area1, area2, area3, area4;
+	float ratioA, ratioB, ratioC, ratioD;
+
+	int width = img.cols;
+	int height = img.rows;
+
+	if (angle <= 0) {
+		int outputWidth = ceil(width * cosine + height * -1 * sine);
+		int outputHeight = ceil(width * -1 * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < outputHeight; i++) {
+			for (int j = 0; j < outputWidth; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					if (cosine * (i + width * sine) - sine * j >= 0 && cosine * (i + width * sine) - sine * j + 1 <= height) {
+						if (sine * (i + width * sine) + cosine * j >= 0 && sine * (i + width * sine) + cosine * j + 1 <= width) {
+							ratioB = cosine * (i + width * sine) - sine * j - int(cosine * (i + width * sine) - sine * j);
+							ratioC = sine * (i + width * sine) + cosine * j - int(sine * (i + width * sine) + cosine * j);
+							ratioA = 1 - ratioB;
+							ratioD = 1 - ratioC;
+
+							area1 = img.at<cv::Vec3b>(floor(cosine * (i + width * sine) - sine * j + 1), floor(sine * (i + width * sine) + cosine * j))[c] * ratioB * ratioD;
+							area2 = img.at<cv::Vec3b>(floor(cosine * (i + width * sine) - sine * j), floor(sine * (i + width * sine) + cosine * j))[c] * ratioA * ratioD;
+							area3 = img.at<cv::Vec3b>(floor(cosine * (i + width * sine) - sine * j + 1), floor(sine * (i + width * sine) + cosine * j) + 1)[c] * ratioB * ratioC;
+							area4 = img.at<cv::Vec3b>(floor(cosine * (i + width * sine) - sine * j), floor(sine * (i + width * sine) + cosine * j) + 1)[c] * ratioA * ratioC;
+
+							output.at<cv::Vec3b>(i, j)[c] = int(area1 + area2 + area3 + area4);
+						}
+					}
+				}
+			}
+
+		}
+	}
+	else {
+		int outputWidth = ceil(width * cosine + height * sine);
+		int outputHeight = ceil(width * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < outputHeight; i++) {
+			for (int j = 0; j < outputWidth; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					if (cosine * i + -1 * sine * (j - height * sine) >= 0 && cosine * i + -1 * sine * (j - height * sine) + 1 <= height) {
+						if (sine * i + cosine * (j - height * sine) >= 0 && sine * i + cosine * (j - height * sine) + 1 <= width) {
+							ratioB = cosine * i + -1 * sine * (j - height * sine) - int(cosine * i + -1 * sine * (j - height * sine));
+							ratioC = sine * i + cosine * (j - height * sine) - int(sine * i + cosine * (j - height * sine));
+							ratioA = 1 - ratioB;
+							ratioD = 1 - ratioC;
+
+							area1 = img.at<cv::Vec3b>(floor(cosine * i + -1 * sine * (j - height * sine) + 1), floor(sine * i + cosine * (j - height * sine)))[c] * ratioB * ratioD;
+							area2 = img.at<cv::Vec3b>(floor(cosine * i + -1 * sine * (j - height * sine)), floor(sine * i + cosine * (j - height * sine)))[c] * ratioA * ratioD;
+							area3 = img.at<cv::Vec3b>(floor(cosine * i + -1 * sine * (j - height * sine) + 1), floor(sine * i + cosine * (j - height * sine)) + 1)[c] * ratioB * ratioC;
+							area4 = img.at<cv::Vec3b>(floor(cosine * i + -1 * sine * (j - height * sine)), floor(sine * i + cosine * (j - height * sine)) + 1)[c] * ratioA * ratioC;
+
+							output.at<cv::Vec3b>(i, j)[c] = int(area1 + area2 + area3 + area4);
+						}
+					}
+				}
+			}
+
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////////
 	//                          END OF YOUR CODE                                //
 	//////////////////////////////////////////////////////////////////////////////
 
 	cv::imshow("c_output", output); cv::waitKey(0);
-
 	return output;
 }
 
