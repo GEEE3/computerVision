@@ -58,6 +58,46 @@ cv::Mat problem_b_rotate_backward(cv::Mat img, double angle){
 	//                         START OF YOUR CODE                               //
 	//////////////////////////////////////////////////////////////////////////////
 
+	const double PI = 3.1415926;
+	double sine = sin(angle * PI / 180);
+	double cosine = cos(angle * PI / 180);
+
+	int width = img.cols;
+	int height = img.rows;
+
+	if (angle <= 0) {
+		int outputWidth = ceil(width * cosine + height * -1 * sine);
+		int outputHeight = ceil(width * -1 * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < outputHeight; i++) {
+			for (int j = 0; j < outputWidth; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					if (cosine * (i + width * sine) - sine * j >= 0 && cosine * (i + width * sine) - sine * j <= height)
+						if (sine * (i + width * sine) + cosine * j >= 0 && sine * (i + width * sine) + cosine * j <= width)
+							output.at<cv::Vec3b>(i, j)[c] = img.at<cv::Vec3b>(floor(cosine * (i + width * sine) - sine * j), floor(sine * (i + width * sine) + cosine * j))[c];
+				}
+			}
+
+		}
+	}
+	else {
+		int outputWidth = ceil(width * cosine + height * sine);
+		int outputHeight = ceil(width * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < outputHeight; i++) {
+			for (int j = 0; j < outputWidth; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					if (cosine * i + -1 * sine * (j - height * sine) >= 0 && cosine * i + -1 * sine * (j - height * sine) <= height)
+						if (sine * i + cosine * (j - height * sine) >= 0 && sine * i + cosine * (j - height * sine) <= width)
+							output.at<cv::Vec3b>(i, j)[c] = img.at<cv::Vec3b>(floor(cosine * i + -1 * sine * (j - height * sine)), floor(sine * i + cosine * (j - height * sine)))[c];
+				}
+			}
+
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////////
 	//                          END OF YOUR CODE                                //
 	//////////////////////////////////////////////////////////////////////////////
