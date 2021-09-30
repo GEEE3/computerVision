@@ -7,6 +7,42 @@ cv::Mat problem_a_rotate_forward(cv::Mat img, double angle){
 	//                         START OF YOUR CODE                               //
 	//////////////////////////////////////////////////////////////////////////////
 
+	const double PI = 3.1415926;
+	double sine = sin(angle * PI / 180);
+	double cosine = cos(angle * PI / 180);
+
+	int width = img.cols;
+	int height = img.rows;
+
+	if (angle <= 0) {
+		int outputWidth = ceil(width * cosine + height * -1 * sine);
+		int outputHeight = ceil(width * -1 * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					output.at<cv::Vec3b>(int(cosine * i + sine * j + width * -1 * sine), int(-1 * sine * i + cosine * j))[c] = img.at<cv::Vec3b>(i, j)[c];
+				}
+			}
+
+		}
+	}
+	else {
+		int outputWidth = ceil(width * cosine + height * sine);
+		int outputHeight = ceil(width * sine + height * cosine);
+		output = cv::Mat::zeros(cv::Size(outputWidth, outputHeight), CV_8UC3);
+
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				for (int c = 0; c < img.channels(); c++) {
+					output.at<cv::Vec3b>(int(cosine * i + sine * j), int(-1 * sine * i + cosine * j + height * sine))[c] = img.at<cv::Vec3b>(i, j)[c];
+				}
+			}
+
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////////
 	//                          END OF YOUR CODE                                //
 	//////////////////////////////////////////////////////////////////////////////
